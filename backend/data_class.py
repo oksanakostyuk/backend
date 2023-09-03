@@ -60,13 +60,15 @@ class DataClass:
         Returns:
             Dict[column_name, List[int]]: mapping column name to a list of row indexes which are outliers
         """
-        
+        # calculate quartiles
         Q3 = self.df.quantile(0.75, numeric_only=True)
         Q1 = self.df.quantile(0.25, numeric_only=True)
-
+        
+        # calculate respective boundaries
         lower = Q1 - 1.5*(Q3-Q1)
         upper = Q3 + 1.5*(Q3-Q1)
         
+        # construct outliers dictionary
         outliers = {}
         for column_name in lower.index:
             outliers[column_name] = \
