@@ -42,8 +42,15 @@ class DataClass:
         return list(pairs[['index_l', 'index_r']].itertuples(index=False, name=None))
 
     def check_missing_values(self) -> List[int]:
-        # Return the row indexes which contain empty values
-        return []
+        """Check missing values and empty strings in the dataset.
+
+        Returns:
+            List[int]: row indexes which contain empty values
+        """
+        return list(self.df.loc[
+            # check all nas + check for empty strings
+            self.df.isna().add(self.df.values == '').sum(axis = 1) >= 1
+            ].index)
 
     def check_outliers(self) -> Dict[column_name, List[int]]:
         # Outliers are defined by the 1.5 IQR method.
