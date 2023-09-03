@@ -23,8 +23,23 @@ class DataClass:
         return {}
 
     def check_duplicates(self) -> List[Tuple[int]]:
-        # Return a list of tuples of row indexes where each tuple represents a duplicate group
-        return []
+        """Check for duplicate rows in the data.
+
+        Here I am joining self.df to itself on all the columns, this way the duplicating rows
+        will be the ones where indices don't match. According to the test, first index has to
+        be lower than the second one, thus the filtering condition. The rest is formatting.
+
+        Returns:
+            List[Tuple[int]]: list of tuples of row indexes where each tuple represents a 
+            duplicate group
+        """
+        join_data = self.df.copy()
+        join_data['index'] = self.df.index
+        merged = join_data.merge(join_data, on=list(self.df.columns), suffixes=('_l', '_r'))
+        # this condition is based on the test
+        pairs = merged.loc[merged['index_l'] < merged['index_r']]
+        # formatting to get the list of tuples
+        return list(pairs[['index_l', 'index_r']].itertuples(index=False, name=None))
 
     def check_missing_values(self) -> List[int]:
         # Return the row indexes which contain empty values
