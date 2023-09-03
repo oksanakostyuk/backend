@@ -53,12 +53,28 @@ class DataClass:
             ].index)
 
     def check_outliers(self) -> Dict[column_name, List[int]]:
-        # Outliers are defined by the 1.5 IQR method.
-        # see https://towardsdatascience.com/why-1-5-in-iqr-method-of-outlier-detection-5d07fdc82097
-        # for a detailed explanation
-        # Return a dict mapping column name to a list of row indexes which are outliers
+        """Check dataset for outliers using 1.5 IQR method.
 
-        return {}
+        Method: https://towardsdatascience.com/why-1-5-in-iqr-method-of-outlier-detection-5d07fdc82097
+
+        Returns:
+            Dict[column_name, List[int]]: mapping column name to a list of row indexes which are outliers
+        """
+        
+        Q3 = self.df.quantile(0.75, numeric_only=True)
+        Q1 = self.df.quantile(0.25, numeric_only=True)
+
+        lower = Q1 - 1.5*(Q3-Q1)
+        upper = Q3 + 1.5*(Q3-Q1)
+        
+        outliers = {}
+        for column_name in lower.index:
+            outliers[column_name] = \
+                list(self.df.loc[self.df[column_name] < lower[column_name]].index) \
+                + \
+                list(self.df.loc[self.df[column_name] > upper[column_name]].index)
+
+        return outliers
 
     def generate_report(self) -> Dict[str, Any]:
         report = {
