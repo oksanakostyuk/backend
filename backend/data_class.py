@@ -18,9 +18,31 @@ class DataClass:
         self.df: pd.DataFrame = pd.read_csv(path, sep=separator)
 
     def check_uniformity(self) -> Dict[column_name, List[int]]:
-        # Return a dict mapping column name to a list of row indexes which are not uniform
+        """Check if there are values of a different data type within each column.
 
-        return {}
+        Based on the data observation, mainly problematic values are the ones where the float values
+        are treated as dates (almost Excel-like). These values are easy to catch by converting the column to a numeric
+        data type.
+        While working on this, I've noticed that Model is sometimes a number, which is also being caught by this logic,
+        but the models seem to be legit. I've still kept the logic because it might be interesting to see in the report.
+
+        Returns:
+            Dict[column_name, List[int]]: mapping of column name to the non-uniform row indices
+        """
+
+        non_uniform = {}
+        for column_name in self.df.columns:
+            # try to convert to number, if it doesn't work, the value is set to na
+            converted = self.df[column_name].dropna().apply(pd.to_numeric, errors='coerce')
+            is_converted = converted.isnull()
+
+            # if there is at least some non-uniform values, return their indices
+            if not is_converted.values.all() and is_converted.values.any():
+                # the idxmean is a numeric / non numeric value that the minority of the dataset has
+                minority_value = is_converted.value_counts().idxmin()
+                non_uniform[column_name] = list(is_converted[is_converted==minority_value].index)
+        
+        return non_uniform
 
     def check_duplicates(self) -> List[Tuple[int]]:
         """Check for duplicate rows in the data.
