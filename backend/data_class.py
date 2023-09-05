@@ -23,8 +23,11 @@ class DataClass:
         Based on the data observation, mainly problematic values are the ones where the float values
         are treated as dates (almost Excel-like). These values are easy to catch by converting the column to a numeric
         data type.
-        While working on this, I've noticed that Model is sometimes a number, which is also being caught by this logic,
-        but the models seem to be legit. I've still kept the logic because it might be interesting to see in the report.
+        While working on this, I've noticed that Model is sometimes a number, so it is being coverted to numeric without
+        a problem and the rest of the column is considered an outlier. To change the behaviour I've added a check for a minority
+        value - if most of the dataset is a string, having a plain number draws attention :)
+        I've checked the models and they seem to be legit, but I've anyway kept the logic as it was, because it might be interesting to 
+        see in the report.
 
         Returns:
             Dict[column_name, List[int]]: mapping of column name to the non-uniform row indices
